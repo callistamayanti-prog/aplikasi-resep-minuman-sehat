@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Resep Minuman Sehat</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+  <header>
+    <h1>🥤 Resep Minuman Sehat</h1>
+    <input type="text" id="search" placeholder="Cari minuman sehat..."/>
+  </header>
+
+  <main>
+    <div id="recipe-list" class="grid"></div>
+  </main>
+
+  <div id="modal" class="modal hidden">
+    <div class="modal-content">
+      <span id="close">&times;</span>
+      <h2 id="modal-title"></h2>
+      <p id="modal-ingredients"></p>
+      <p id="modal-steps"></p>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
