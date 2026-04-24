@@ -1,31 +1,479 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Resep Minuman Sehat</title>
-  <link rel="stylesheet" href="style.css"/>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Resep Minuman Sehat</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(to right, #e8fff3, #f6fffb);
+}
+
+header {
+  background: linear-gradient(135deg, #2ecc71, #27ae60);
+  padding: 25px;
+  text-align: center;
+  color: white;
+}
+
+header input {
+  margin-top: 12px;
+  padding: 12px;
+  width: 80%;
+  max-width: 400px;
+  border: none;
+  border-radius: 30px;
+}
+
+.btn-panduan {
+  margin-top: 12px;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 30px;
+  background: white;
+  color: #27ae60;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 20px;
+  padding: 25px;
+}
+
+.card {
+  background: white;
+  border-radius: 16px;
+  padding: 15px;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+  cursor: pointer;
+  transition: 0.3s;
+  position: relative;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.card img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #2ecc71;
+  color: white;
+  padding: 4px 8px;
+  font-size: 11px;
+  border-radius: 8px;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 16px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.hidden {
+  display: none;
+}
+
+.close {
+  float: right;
+  font-size: 22px;
+  cursor: pointer;
+}
+</style>
 </head>
+
 <body>
 
-  <header>
-    <h1>🥤 Resep Minuman Sehat</h1>
-    <input type="text" id="search" placeholder="Cari minuman sehat..."/>
-  </header>
+<header>
+  <h1>🥤 Resep Minuman Sehat</h1>
+  <input type="text" id="search" placeholder="Cari minuman sehat..."/>
+  <br>
+  <button class="btn-panduan" onclick="openGuide()">📖 Panduan</button>
+</header>
 
-  <main>
-    <div id="recipe-list" class="grid"></div>
-  </main>
+<main>
+  <div id="recipe-list" class="grid"></div>
+</main>
 
-  <div id="modal" class="modal hidden">
-    <div class="modal-content">
-      <span id="close">&times;</span>
-      <h2 id="modal-title"></h2>
-      <p id="modal-ingredients"></p>
-      <p id="modal-steps"></p>
-    </div>
+<!-- Modal Resep -->
+<div id="modal" class="modal hidden">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <h2 id="modal-title"></h2>
+    <p id="modal-ingredients"></p>
+    <p id="modal-steps"></p>
   </div>
+</div>
 
-  <script src="script.js"></script>
+<!-- Modal Panduan -->
+<div id="guide-modal" class="modal hidden">
+  <div class="modal-content">
+    <span class="close" onclick="closeGuide()">&times;</span>
+    <h2>📖 Panduan Membuat Minuman Sehat</h2>
+    <ul>
+      <li>Gunakan bahan segar seperti buah dan sayur.</li>
+      <li>Cuci semua bahan sebelum digunakan.</li>
+      <li>Potong bahan kecil-kecil agar mudah diblender.</li>
+      <li>Kurangi gula tambahan, gunakan madu atau gula alami.</li>
+      <li>Gunakan air matang atau air mineral bersih.</li>
+      <li>Tambahkan es batu untuk rasa lebih segar.</li>
+      <li>Gunakan blender atau juicer sesuai kebutuhan.</li>
+      <li>Sesuaikan kekentalan dengan menambah air atau susu.</li>
+      <li>Gunakan susu rendah lemak untuk pilihan lebih sehat.</li>
+      <li>Minum segera setelah dibuat agar nutrisi tetap terjaga.</li>
+      <li>Simpan di kulkas maksimal 1 hari.</li>
+      <li>Gunakan wadah tertutup agar tetap higienis.</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+const recipes = [
+  {
+    title: "Jus Detox Hijau",
+    ingredients: "Bayam, apel, lemon, air",
+    steps: "Blender semua bahan hingga halus lalu sajikan dingin.",
+    image: "https://images.unsplash.com/photo-1553530666-ba11a90bb0c6"
+  },
+  {
+    title: "Smoothie Pisang Oat",
+    ingredients: "Pisang, oat, susu almond, madu",
+    steps: "Blender hingga lembut. Cocok untuk sarapan sehat.",
+    image: "https://images.unsplash.com/photo-1505252585461-04db1eb84625"
+  },
+  {
+    title: "Infused Water Jeruk Mint",
+    ingredients: "Jeruk, daun mint, air dingin",
+    steps: "Diamkan di kulkas minimal 2 jam sebelum diminum.",
+    image: "https://images.unsplash.com/photo-1524593166156-312f362cada0"
+  }
+];
+
+const list = document.getElementById("recipe-list");
+const search = document.getElementById("search");
+
+function display(data) {
+  list.innerHTML = "";
+  data.forEach(r => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <div class="badge">Sehat</div>
+      <img src="${r.image}" />
+      <h3>${r.title}</h3>
+      <p>${r.ingredients}</p>
+    `;
+    card.onclick = () => openModal(r);
+    list.appendChild(card);
+  });
+}
+
+search.addEventListener("input", e => {
+  const keyword = e.target.value.toLowerCase();
+  const filtered = recipes.filter(r =>
+    r.title.toLowerCase().includes(keyword)
+  );
+  display(filtered);
+});
+
+const modal = document.getElementById("modal");
+
+function openModal(r) {
+  modal.classList.remove("hidden");
+  document.getElementById("modal-title").textContent = r.title;
+  document.getElementById("modal-ingredients").textContent = "Bahan: " + r.ingredients;
+  document.getElementById("modal-steps").textContent = "Cara: " + r.steps;
+}
+
+function closeModal() {
+  modal.classList.add("hidden");
+}
+
+const guideModal = document.getElementById("guide-modal");
+
+function openGuide() {
+  guideModal.classList.remove("hidden");
+}
+
+function closeGuide() {
+  guideModal.classList.add("hidden");
+}
+
+window.onclick = e => {
+  if (e.target === modal) closeModal();
+  if (e.target === guideModal) closeGuide();
+};
+
+display(recipes);
+</script>
+
 </body>
-</html>
+</html><!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Resep Minuman Sehat</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(to right, #e8fff3, #f6fffb);
+}
+
+header {
+  background: linear-gradient(135deg, #2ecc71, #27ae60);
+  padding: 25px;
+  text-align: center;
+  color: white;
+}
+
+header input {
+  margin-top: 12px;
+  padding: 12px;
+  width: 80%;
+  max-width: 400px;
+  border: none;
+  border-radius: 30px;
+}
+
+.btn-panduan {
+  margin-top: 12px;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 30px;
+  background: white;
+  color: #27ae60;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 20px;
+  padding: 25px;
+}
+
+.card {
+  background: white;
+  border-radius: 16px;
+  padding: 15px;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+  cursor: pointer;
+  transition: 0.3s;
+  position: relative;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.card img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #2ecc71;
+  color: white;
+  padding: 4px 8px;
+  font-size: 11px;
+  border-radius: 8px;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 16px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.hidden {
+  display: none;
+}
+
+.close {
+  float: right;
+  font-size: 22px;
+  cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>🥤 Resep Minuman Sehat</h1>
+  <input type="text" id="search" placeholder="Cari minuman sehat..."/>
+  <br>
+  <button class="btn-panduan" onclick="openGuide()">📖 Panduan</button>
+</header>
+
+<main>
+  <div id="recipe-list" class="grid"></div>
+</main>
+
+<!-- Modal Resep -->
+<div id="modal" class="modal hidden">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <h2 id="modal-title"></h2>
+    <p id="modal-ingredients"></p>
+    <p id="modal-steps"></p>
+  </div>
+</div>
+
+<!-- Modal Panduan -->
+<div id="guide-modal" class="modal hidden">
+  <div class="modal-content">
+    <span class="close" onclick="closeGuide()">&times;</span>
+    <h2>📖 Panduan Membuat Minuman Sehat</h2>
+    <ul>
+      <li>Gunakan bahan segar seperti buah dan sayur.</li>
+      <li>Cuci semua bahan sebelum digunakan.</li>
+      <li>Potong bahan kecil-kecil agar mudah diblender.</li>
+      <li>Kurangi gula tambahan, gunakan madu atau gula alami.</li>
+      <li>Gunakan air matang atau air mineral bersih.</li>
+      <li>Tambahkan es batu untuk rasa lebih segar.</li>
+      <li>Gunakan blender atau juicer sesuai kebutuhan.</li>
+      <li>Sesuaikan kekentalan dengan menambah air atau susu.</li>
+      <li>Gunakan susu rendah lemak untuk pilihan lebih sehat.</li>
+      <li>Minum segera setelah dibuat agar nutrisi tetap terjaga.</li>
+      <li>Simpan di kulkas maksimal 1 hari.</li>
+      <li>Gunakan wadah tertutup agar tetap higienis.</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+const recipes = [
+  {
+    title: "Jus Detox Hijau",
+    ingredients: "Bayam, apel, lemon, air",
+    steps: "Blender semua bahan hingga halus lalu sajikan dingin.",
+    image: "https://images.unsplash.com/photo-1553530666-ba11a90bb0c6"
+  },
+  {
+    title: "Smoothie Pisang Oat",
+    ingredients: "Pisang, oat, susu almond, madu",
+    steps: "Blender hingga lembut. Cocok untuk sarapan sehat.",
+    image: "https://images.unsplash.com/photo-1505252585461-04db1eb84625"
+  },
+  {
+    title: "Infused Water Jeruk Mint",
+    ingredients: "Jeruk, daun mint, air dingin",
+    steps: "Diamkan di kulkas minimal 2 jam sebelum diminum.",
+    image: "https://images.unsplash.com/photo-1524593166156-312f362cada0"
+  }
+];
+
+const list = document.getElementById("recipe-list");
+const search = document.getElementById("search");
+
+function display(data) {
+  list.innerHTML = "";
+  data.forEach(r => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <div class="badge">Sehat</div>
+      <img src="${r.image}" />
+      <h3>${r.title}</h3>
+      <p>${r.ingredients}</p>
+    `;
+    card.onclick = () => openModal(r);
+    list.appendChild(card);
+  });
+}
+
+search.addEventListener("input", e => {
+  const keyword = e.target.value.toLowerCase();
+  const filtered = recipes.filter(r =>
+    r.title.toLowerCase().includes(keyword)
+  );
+  display(filtered);
+});
+
+const modal = document.getElementById("modal");
+
+function openModal(r) {
+  modal.classList.remove("hidden");
+  document.getElementById("modal-title").textContent = r.title;
+  document.getElementById("modal-ingredients").textContent = "Bahan: " + r.ingredients;
+  document.getElementById("modal-steps").textContent = "Cara: " + r.steps;
+}
+
+function closeModal() {
+  modal.classList.add("hidden");
+}
+
+const guideModal = document.getElementById("guide-modal");
+
+function openGuide() {
+  guideModal.classList.remove("hidden");
+}
+
+function closeGuide() {
+  guideModal.classList.add("hidden");
+}
+
+window.onclick = e => {
+  if (e.target === modal) closeModal();
+  if (e.target === guideModal) closeGuide();
+};
+
+display(recipes);
+</script>
+
+</body>
+  </html>
